@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	http.Handle("/resources", http.StripPrefix("/resources", http.FileServer(http.Dir("./assets"))))
-	http.HandleFunc("/doggy", serve)
+	http.HandleFunc("/", index)
+	http.Handle("/resources/", http.StripPrefix("/resources", http.FileServer(http.Dir("./assets"))))
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
@@ -17,7 +17,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	html := `<h1>
 				<body>
 					<p>Here is a photo:</p>
-					<img src="/doggy.jpg" />
+					<img src="/resources/doggy.jpg" />
 				</body>
 			</h1>`
 
