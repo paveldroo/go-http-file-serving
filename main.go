@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -26,17 +25,5 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func serve(w http.ResponseWriter, r *http.Request) {
-	f, err := os.Open("doggy.jpg")
-	if err != nil {
-		http.Error(w, "Photo not found", 404)
-		return
-	}
-	defer f.Close()
-
-	fi, err := f.Stat()
-	if err != nil {
-		http.Error(w, "Photo not found", 404)
-		return
-	}
-	http.ServeContent(w, r, fi.Name(), fi.ModTime(), f)
+	http.ServeFile(w, r, "doggy.jpg")
 }
