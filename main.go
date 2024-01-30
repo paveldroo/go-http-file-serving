@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/doggy.jpg", serve)
+	http.Handle("/resources", http.StripPrefix("/resources", http.FileServer(http.Dir("./assets"))))
+	http.HandleFunc("/doggy", serve)
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
@@ -21,7 +21,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 				</body>
 			</h1>`
 
-	fmt.Fprintf(w, html)
+	io.WriteString(w, html)
 }
 
 func serve(w http.ResponseWriter, r *http.Request) {
