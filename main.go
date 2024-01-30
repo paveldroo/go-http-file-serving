@@ -1,34 +1,54 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 )
 
-func main() {
-	log.Fatal(http.ListenAndServe(":8000", http.FileServer(http.Dir("."))))
+var tpl *template.Template
+
+func init() {
+	tpl = template.Must(template.ParseGlob("templates/*"))
 }
 
-// Here is an old manual fileserver
+func main() {
+	http.HandleFunc("/", index)
+	http.HandleFunc("/about/", about)
+	http.HandleFunc("/contact/", contact)
+	http.HandleFunc("/apply/", apply)
 
-//func main() {
-//	http.HandleFunc("/", index)
-//	http.Handle("/resources/", http.StripPrefix("/resources", http.FileServer(http.Dir("./assets"))))
-//	log.Fatal(http.ListenAndServe(":8000", nil))
-//}
-//
-//func index(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-//	html := `<h1>
-//				<body>
-//					<p>Here is a photo:</p>
-//					<img src="/resources/doggy.jpg" />
-//				</body>
-//			</h1>`
-//
-//	io.WriteString(w, html)
-//}
-//
-//func serve(w http.ResponseWriter, r *http.Request) {
-//	http.ServeFile(w, r, "doggy.jpg")
-//}
+	http.ListenAndServe(":8000", nil)
+}
+
+func index(w http.ResponseWriter, req *http.Request) {
+	err := tpl.ExecuteTemplate(w, "index.gohtml", nil)
+	HandleError(w, err)
+}
+
+func about(w http.ResponseWriter, req *http.Request) {
+	err := tpl.ExecuteTemplate(w, "about.gohtml", nil)
+	HandleError(w, err)
+}
+
+func contact(w http.ResponseWriter, req *http.Request) {
+	err := tpl.ExecuteTemplate(w, "contact.gohtml", nil)
+	HandleError(w, err)
+}
+
+func apply(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		err := tpl.ExecuteTemplate(w, "applyProcess.gohtml", nil)
+		HandleError(w, err)
+		return
+	}
+	err := tpl.ExecuteTemplate(w, "apply.gohtml", nil)
+	HandleError(w, err)
+}
+
+func HandleError(w http.ResponseWriter, err error) {
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatalln(err)
+	}
+}
